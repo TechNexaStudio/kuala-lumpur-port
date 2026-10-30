@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kitchen Display System (KDS) - Kuala Lumpur Port</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+            }
+          },
+          fontFamily: {
+            heading: ['Outfit', 'sans-serif'],
+            body: ['Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#faf8f5] text-slate-800 font-body min-h-screen antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- SOUND ALERT NOTIFICATION BAR (Shown when pending orders exist) -->
+  <div id="urgentAlertBanner" class="hidden bg-gradient-to-r from-red-600 via-rose-600 to-red-600 text-white py-2.5 px-4 text-center font-bold text-sm flex items-center justify-center gap-3 animate-pulse shadow-md sticky top-0 z-50">
+    <i data-lucide="bell-ring" class="w-5 h-5 animate-bounce"></i>
+    <span>NEW ORDER RECEIVED! Please accept to stop alert tone.</span>
+    <button onclick="toggleAudioMute()" id="muteBtn" class="bg-white/20 hover:bg-white/30 text-white text-xs px-3 py-1 rounded-lg border border-white/40 ml-2">
+      Mute Sound
+    </button>
+  </div>
+
+  <!-- KITCHEN APP CONTAINER -->
+  <div id="kitchenApp" class="flex flex-col min-h-screen">
+    
+    <!-- HEADER -->
+    <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3.5 sticky top-0 z-30 shadow-xs">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        
+        <!-- Left: Brand & Station Name -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-md shadow-brand-500/20">
+            <i data-lucide="chef-hat" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-lg sm:text-xl font-black font-heading tracking-tight text-slate-900">
+                KITCHEN DISPLAY (KDS)
+              </h1>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                LIVE
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 font-medium">Kuala Lumpur Port • Food Preparation Station</p>
+          </div>
+        </div>
+
+        <!-- Center: Queue Summary Stats -->
+        <div class="hidden md:flex items-center gap-3 text-xs font-bold">
+          <div class="bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl text-amber-900 flex items-center gap-2">
+            <span>Pending:</span>
+            <span id="statPendingCount" class="bg-amber-500 text-white px-2 py-0.5 rounded-lg text-sm">0</span>
+          </div>
+          <div class="bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-xl text-blue-900 flex items-center gap-2">
+            <span>Cooking:</span>
+            <span id="statCookingCount" class="bg-blue-600 text-white px-2 py-0.5 rounded-lg text-sm">0</span>
+          </div>
+          <div class="bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl text-emerald-900 flex items-center gap-2">
+            <span>Ready:</span>
+            <span id="statReadyCount" class="bg-emerald-600 text-white px-2 py-0.5 rounded-lg text-sm">0</span>
+          </div>
+        </div>
+
+        <!-- Right: Audio & Settings Controls -->
+        <div class="flex items-center gap-2">
+          <!-- Audio Test / Status -->
+          <button onclick="testKitchenSound()" title="Test Bell Sound" class="p-2 sm:px-3 sm:py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-200 transition">
+            <i data-lucide="volume-2" class="w-4 h-4 text-brand-600"></i>
+            <span class="hidden sm:inline">Test Sound</span>
+          </button>
+
+          <!-- Settings & PIN Modal -->
+          <button onclick="openSettingsModal()" title="KDS Settings & Password Reset" class="p-2 sm:px-3 sm:py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-200 transition">
+            <i data-lucide="settings" class="w-4 h-4 text-slate-600"></i>
+            <span class="hidden sm:inline">Settings</span>
+          </button>
+
+          <!-- Lock Screen Button -->
+          <button onclick="lockScreen()" title="Lock KDS Screen" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition">
+            <i data-lucide="lock" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- QUEUE FILTER TABS -->
+    <div class="bg-white border-b border-slate-200 px-4 sm:px-6 py-2.5 sticky top-[65px] z-20">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
+        
+        <div class="flex items-center gap-2" id="filterTabsContainer">
+          <button onclick="setFilter('active')" id="tab-active" class="px-4 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-brand-600 text-white shadow-xs">
+            Active Orders (<span id="tabCountActive">0</span>)
+          </button>
+          <button onclick="setFilter('pending')" id="tab-pending" class="px-4 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 hover:bg-amber-50 text-slate-700 border border-slate-200">
+            Pending / New (<span id="tabCountPending">0</span>)
+          </button>
+          <button onclick="setFilter('preparing')" id="tab-preparing" class="px-4 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 hover:bg-blue-50 text-slate-700 border border-slate-200">
+            In Cooking (<span id="tabCountCooking">0</span>)
+          </button>
+          <button onclick="setFilter('ready')" id="tab-ready" class="px-4 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 hover:bg-emerald-50 text-slate-700 border border-slate-200">
+            Ready to Serve (<span id="tabCountReady">0</span>)
+          </button>
+          <button onclick="setFilter('all')" id="tab-all" class="px-4 py-1.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 text-slate-700 border border-slate-200">
+            All Today (<span id="tabCountAll">0</span>)
+          </button>
+        </div>
+
+        <!-- 10 Minute Delay Indicator Note -->
+        <div class="hidden lg:flex items-center gap-1.5 text-xs text-slate-500 font-medium shrink-0">
+          <span class="w-3 h-3 rounded-md bg-red-500 inline-block"></span>
+          <span>Red cards indicate order waiting &gt; 10 mins</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MAIN ORDERS GRID -->
+    <main class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6">
+      
+      <!-- Orders Cards Grid -->
+      <div id="ordersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="kitchenEmptyState" class="hidden text-center py-24">
+        <div class="w-20 h-20 mx-auto mb-4 rounded-3xl bg-amber-50 border border-amber-200 text-amber-500 flex items-center justify-center">
+          <i data-lucide="check-check" class="w-10 h-10"></i>
+        </div>
+        <h3 class="text-xl font-bold font-heading text-slate-800">Kitchen Queue Clear!</h3>
+        <p class="text-sm text-slate-500 max-w-sm mx-auto mt-1">
+          No pending or cooking orders right now. New customer orders will pop up here with real-time sound alert automatically.
+        </p>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- PIN LOCK SCREEN (SECRET 4-DIGIT PIN ENTRY) -->
+  <div id="pinLockModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-2xl text-center">
+      
+      <div class="w-14 h-14 rounded-2xl bg-brand-500/10 text-brand-600 border border-brand-500/20 flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="lock" class="w-7 h-7"></i>
+      </div>
+
+      <h3 class="text-2xl font-black font-heading text-slate-900">Kitchen Staff Access</h3>
+      <p class="text-xs text-slate-500 mt-1 mb-6">Enter authorized 4-digit PIN to access display</p>
+
+      <!-- 4 PIN Dots Indicator -->
+      <div class="flex justify-center gap-4 mb-6" id="pinDots">
+        <div class="w-4 h-4 rounded-full border-2 border-slate-300 bg-transparent transition-all" id="dot-0"></div>
+        <div class="w-4 h-4 rounded-full border-2 border-slate-300 bg-transparent transition-all" id="dot-1"></div>
+        <div class="w-4 h-4 rounded-full border-2 border-slate-300 bg-transparent transition-all" id="dot-2"></div>
+        <div class="w-4 h-4 rounded-full border-2 border-slate-300 bg-transparent transition-all" id="dot-3"></div>
+      </div>
+
+      <!-- Error message -->
+      <div id="pinError" class="hidden text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-xl py-2 px-3 mb-4">
+        Incorrect PIN. Access Denied.
+      </div>
+
+      <!-- Keypad Buttons -->
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <button onclick="pressPin('1')" class="h-14 rounded-2xl bg-slate-50 hover:bg-amber-50 active:scale-95 border border-slate-200 text-xl font-bold font-heading text-slate-800 transition">1</button>
+        <button onclick="pressPin('2')" class="h-14 rounded-2xl bg-slate-50 hover:bg-amber-50 active:scale-95 border border-slate-200 text-xl font-bold font-heading text-slate-800 transition">2</button>
+        <button onclick="pressPin('3')" class="h-14 rounded-2xl bg-slate-50 hover:bg-amber-50 active:scale-95 border border-slate-200 text-xl font-bold font-heading text-slate-800 transition">3</button>
+        <button onclick="pressPin('4')" class="h-14 rounded-2xl bg-slate-50 hover:bg-amber-50 active:scale-95 border border-slate-200 text-xl font-bold font-heading text-slate-800 transition">4</button>
+        <button onclick="pressPin('5')" class="h-14 rounded-2xl bg-slate-50 hover:bg-amber-50 active:scale-95 border border-slate-200 text-xl font-bold font-heading text-slate-800 transition">5</button>
+        <button onclick="pressPin('6')" class="h-14 rounded-2xl bg-slate-50 hover:bg-amber-50 active:scale-95 border border-slate-200 text-xl font-bold font-heading text-slate-800 transition">6</button>
+        <button onclick="pressPin('7')" class="h-14 rounded-2xl bg-slate-50 hover:bg-amber-50 active:scale-95 border border-slate-200 text-xl font-bold font-heading text-slate-800 transition">7</button>
+        <button onclick="pressPin('8')" class="h-14 rounded-2xl bg-slate-50 hover:bg-amber-50 active:scale-95 border border-slate-200 text-xl font-bold font-heading text-slate-800 transition">8</button>
+        <button onclick="pressPin('9')" class="h-14 rounded-2xl bg-slate-50 hover:bg-amber-50 active:scale-95 border border-slate-200 text-xl font-bold font-heading text-slate-800 transition">9</button>
+        <button onclick="clearPin()" class="h-14 rounded-2xl bg-slate-100 hover:bg-slate-200 active:scale-95 border border-slate-200 text-xs font-bold text-slate-600 transition">CLEAR</button>
+        <button onclick="pressPin('0')" class="h-14 rounded-2xl bg-slate-50 hover:bg-amber-50 active:scale-95 border border-slate-200 text-xl font-bold font-heading text-slate-800 transition">0</button>
+        <button onclick="backspacePin()" class="h-14 rounded-2xl bg-slate-100 hover:bg-slate-200 active:scale-95 border border-slate-200 flex items-center justify-center text-slate-600 transition">
+          <i data-lucide="delete" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="text-[11px] text-slate-400 font-medium">
+        Keyboard number keys 0-9 can also be used.
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS & PASSWORD RESET MODAL -->
+  <div id="settingsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl">
+      
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+            <i data-lucide="shield-alert" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h4 class="font-bold font-heading text-lg text-slate-900">KDS Security & Settings</h4>
+            <p class="text-xs text-slate-500">Manage Kitchen PIN & Defaults</p>
+          </div>
+        </div>
+        <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Reset to Original Password Option (Requested by User) -->
+      <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 mb-5">
+        <h5 class="font-bold text-xs text-amber-900 mb-1 flex items-center gap-1.5">
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-brand-600"></i>
+          <span>Reset to Original Password</span>
+        </h5>
+        <p class="text-xs text-slate-600 leading-relaxed mb-3">
+          If any staff member forgot or changed the password, clicking below restores the original factory default PIN.
+        </p>
+        <button onclick="resetPinToDefault()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition shadow-xs flex items-center justify-center gap-2">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          <span>Reset to Original Password</span>
+        </button>
+      </div>
+
+      <!-- Change PIN Option -->
+      <div class="border border-slate-200 rounded-2xl p-4 mb-5">
+        <h5 class="font-bold text-xs text-slate-800 mb-2">Change Kitchen PIN</h5>
+        <div class="flex gap-2">
+          <input 
+            type="password" 
+            id="newPinInput" 
+            maxlength="4" 
+            placeholder="New 4-digit PIN" 
+            class="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-900 text-center tracking-widest focus:outline-none focus:border-brand-500"
+          >
+          <button onclick="submitNewPin()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2 rounded-xl transition">
+            Save
+          </button>
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <button onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition">
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- APPLICATION SCRIPTS -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="kitchen.js"></script>
+</body>
+</html>

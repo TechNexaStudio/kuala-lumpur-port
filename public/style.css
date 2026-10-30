@@ -1,0 +1,71 @@
+/* Custom Smooth Light Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ea580c;
+}
+
+/* Hide scrollbar for category tabs */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Print Styles for QR Code Stickers */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #qrModalBackdrop, #qrModalBackdrop * {
+    visibility: visible;
+  }
+  #qrModalBackdrop {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white !important;
+    color: black !important;
+  }
+  #qrCardsGrid {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 20px !important;
+  }
+  .qr-card-print {
+    border: 2px dashed #000 !important;
+    background: #fff !important;
+    color: #000 !important;
+    padding: 15px !important;
+  }
+}
+
+/* Clean Card Hover Effects */
+.food-card {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.food-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(234, 88, 12, 0.35);
+  box-shadow: 0 16px 30px -10px rgba(234, 88, 12, 0.12), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
+/* Smooth Image zoom */
+.food-card:hover .food-image {
+  transform: scale(1.04);
+}
+.food-image {
+  transition: transform 0.4s ease;
+}

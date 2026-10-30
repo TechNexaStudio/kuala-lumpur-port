@@ -1,0 +1,218 @@
+[
+  {
+    "id": "KLP-86430",
+    "table": 1,
+    "items": [
+      {
+        "id": "deal-1",
+        "name": "Solo Zinger Combo",
+        "category": "Deals",
+        "price": 18.5,
+        "quantity": 2,
+        "itemTotal": 37
+      }
+    ],
+    "notes": "with extra sauce",
+    "subtotal": 37,
+    "tax": 0,
+    "total": 37,
+    "currency": "RM",
+    "status": "ready",
+    "paymentStatus": "unpaid",
+    "createdAt": "2026-10-30T11:48:06.430Z",
+    "statusHistory": [
+      {
+        "status": "pending",
+        "timestamp": "2026-10-30T11:48:06.430Z"
+      },
+      {
+        "status": "preparing",
+        "timestamp": "2026-10-30T11:48:47.031Z"
+      },
+      {
+        "status": "ready",
+        "timestamp": "2026-10-30T11:48:53.697Z"
+      }
+    ]
+  },
+  {
+    "id": "KLP-31758",
+    "table": 5,
+    "items": [
+      {
+        "id": "b-6",
+        "name": "Double Patty Monster Burger",
+        "category": "Burgers",
+        "price": 21,
+        "quantity": 1,
+        "itemTotal": 21
+      },
+      {
+        "id": "p-4",
+        "name": "Beef Pepperoni Pizza",
+        "category": "Pizzas",
+        "price": 32,
+        "quantity": 1,
+        "itemTotal": 32
+      }
+    ],
+    "notes": "Customer paying cash at counter",
+    "subtotal": 53,
+    "tax": 0,
+    "total": 47.7,
+    "currency": "RM",
+    "status": "served",
+    "paymentStatus": "paid",
+    "createdAt": "2026-10-30T11:35:31.758Z",
+    "statusHistory": [
+      {
+        "status": "pending",
+        "timestamp": "2026-10-30T11:35:31.758Z"
+      },
+      {
+        "status": "paid",
+        "timestamp": "2026-10-30T11:35:31.843Z"
+      }
+    ],
+    "discount": 5.3,
+    "discountReason": "10% Promo Discount",
+    "paymentDetails": {
+      "method": "CASH",
+      "cashReceived": 50,
+      "discountAmount": 5.3,
+      "discountReason": "10% Promo Discount",
+      "netPayable": 47.7,
+      "changeReturn": 2.3,
+      "cashier": "cashier",
+      "paidAt": "2026-10-30T11:35:31.843Z"
+    }
+  },
+  {
+    "id": "KLP-12455",
+    "table": 3,
+    "items": [
+      {
+        "id": "deal-2",
+        "name": "Twin Burger Feast",
+        "category": "Deals",
+        "price": 32,
+        "quantity": 2,
+        "itemTotal": 64
+      }
+    ],
+    "notes": "extra sauce",
+    "subtotal": 64,
+    "tax": 0,
+    "total": 64,
+    "currency": "RM",
+    "status": "ready",
+    "paymentStatus": "unpaid",
+    "createdAt": "2026-10-30T11:18:32.455Z",
+    "statusHistory": [
+      {
+        "status": "pending",
+        "timestamp": "2026-10-30T11:18:32.455Z"
+      },
+      {
+        "status": "preparing",
+        "timestamp": "2026-10-30T11:18:52.350Z"
+      },
+      {
+        "status": "ready",
+        "timestamp": "2026-10-30T11:19:07.327Z"
+      }
+    ]
+  },
+  {
+    "id": "KLP-19369",
+    "table": 4,
+    "items": [
+      {
+        "id": "b-2",
+        "name": "Cheese Patty Burger",
+        "category": "Burgers",
+        "price": 15,
+        "quantity": 1,
+        "itemTotal": 15
+      },
+      {
+        "id": "p-2",
+        "name": "Chicken Tikka Pizza",
+        "category": "Pizzas",
+        "price": 29.5,
+        "quantity": 1,
+        "itemTotal": 29.5
+      },
+      {
+        "id": "d-3",
+        "name": "Iced Lemon Tea (Fresh Brew)",
+        "category": "Drinks",
+        "price": 5.5,
+        "quantity": 2,
+        "itemTotal": 11
+      }
+    ],
+    "notes": "Extra spicy, no onions please",
+    "subtotal": 55.5,
+    "tax": 0,
+    "total": 55.5,
+    "currency": "RM",
+    "status": "ready",
+    "paymentStatus": "unpaid",
+    "createdAt": "2026-10-30T11:13:39.369Z",
+    "statusHistory": [
+      {
+        "status": "pending",
+        "timestamp": "2026-10-30T11:13:39.369Z"
+      },
+      {
+        "status": "preparing",
+        "timestamp": "2026-10-30T11:13:39.539Z"
+      },
+      {
+        "status": "ready",
+        "timestamp": "2026-10-30T11:13:39.545Z"
+      }
+    ]
+  },
+  {
+    "id": "KLP-16008",
+    "table": 2,
+    "items": [
+      {
+        "id": "b-3",
+        "name": "Crispy Zinger Burger",
+        "category": "Burgers",
+        "price": 14.5,
+        "quantity": 2,
+        "itemTotal": 29
+      },
+      {
+        "id": "deal-1",
+        "name": "Solo Zinger Combo",
+        "category": "Deals",
+        "price": 18.5,
+        "quantity": 1,
+        "itemTotal": 18.5
+      }
+    ],
+    "notes": "Extra crispy and less spicy please",
+    "subtotal": 47.5,
+    "tax": 0,
+    "total": 47.5,
+    "currency": "RM",
+    "status": "ready",
+    "paymentStatus": "unpaid",
+    "createdAt": "2026-10-30T10:50:16.009Z",
+    "statusHistory": [
+      {
+        "status": "preparing",
+        "timestamp": "2026-10-30T11:12:01.938Z"
+      },
+      {
+        "status": "ready",
+        "timestamp": "2026-10-30T11:19:02.190Z"
+      }
+    ]
+  }
+]

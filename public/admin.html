@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Master Admin Dashboard - Kuala Lumpur Port</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+            }
+          },
+          fontFamily: {
+            heading: ['Outfit', 'sans-serif'],
+            body: ['Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #printReportArea, #printReportArea * {
+        visibility: visible !important;
+      }
+      #printReportArea {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        display: block !important;
+        background: white !important;
+        color: black !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-[#faf8f5] text-slate-800 font-body min-h-screen antialiased selection:bg-brand-500 selection:text-white pb-16">
+
+  <!-- ADMIN APP CONTAINER -->
+  <div id="adminApp" class="flex flex-col min-h-screen">
+    
+    <!-- HEADER -->
+    <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 sticky top-0 z-30 shadow-xs">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        
+        <!-- Left: Brand & Admin Badge -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-slate-900 to-slate-800 text-white flex items-center justify-center shadow-md shadow-slate-900/20">
+            <i data-lucide="shield-check" class="w-6 h-6 text-brand-500"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-lg sm:text-xl font-black font-heading tracking-tight text-slate-900">
+                MASTER ADMIN DASHBOARD
+              </h1>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-100 text-purple-900 border border-purple-200">
+                <i data-lucide="crown" class="w-3.5 h-3.5 text-purple-600"></i>
+                Owner Portal
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 font-medium">Kuala Lumpur Port • Full Management & Analytics</p>
+          </div>
+        </div>
+
+        <!-- Center / Right: Quick Navigation to All Stations -->
+        <div class="flex items-center gap-2">
+          <a href="/?table=1" class="hidden md:flex items-center gap-1 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition border border-slate-200">
+            <i data-lucide="utensils" class="w-3.5 h-3.5 text-brand-600"></i>
+            <span>Customer Menu</span>
+          </a>
+          <a href="/kitchen" class="hidden md:flex items-center gap-1 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition border border-slate-200">
+            <i data-lucide="chef-hat" class="w-3.5 h-3.5 text-brand-600"></i>
+            <span>Kitchen</span>
+          </a>
+          <a href="/cashier" class="hidden sm:flex items-center gap-1 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition shadow-xs">
+            <i data-lucide="calculator" class="w-3.5 h-3.5"></i>
+            <span>Cashier POS</span>
+          </a>
+
+          <!-- Master Settings Modal -->
+          <button onclick="openSettingsModal()" title="Admin Security Settings" class="p-2 sm:px-3 sm:py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-200 transition">
+            <i data-lucide="settings" class="w-4 h-4 text-slate-600"></i>
+            <span class="hidden sm:inline">Settings</span>
+          </button>
+
+          <!-- Logout Button -->
+          <button onclick="logoutAdmin()" title="Logout" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition">
+            <i data-lucide="log-out" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- ADMIN NAVIGATION TABS -->
+    <div class="bg-white border-b border-slate-200 px-4 sm:px-6 py-2.5 sticky top-[65px] z-20 shadow-xs">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 overflow-x-auto no-scrollbar">
+        <div class="flex items-center gap-2" id="adminMainTabs">
+          <button onclick="switchAdminTab('analytics')" id="tabBtn-analytics" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-brand-600 text-white shadow-xs flex items-center gap-2">
+            <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+            <span>Sales & Analytics</span>
+          </button>
+          <button onclick="switchAdminTab('orders')" id="tabBtn-orders" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 flex items-center gap-2">
+            <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+            <span>Orders Ledger</span>
+          </button>
+          <button onclick="switchAdminTab('menu')" id="tabBtn-menu" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 flex items-center gap-2">
+            <i data-lucide="utensils-crossed" class="w-4 h-4"></i>
+            <span>Menu & Stock Management</span>
+          </button>
+          <button onclick="switchAdminTab('security')" id="tabBtn-security" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 flex items-center gap-2">
+            <i data-lucide="shield" class="w-4 h-4"></i>
+            <span>Security & Passwords</span>
+          </button>
+        </div>
+
+        <!-- Export Buttons in Top Bar -->
+        <div class="hidden sm:flex items-center gap-2">
+          <a href="/api/admin/export-csv" target="_blank" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>Export CSV</span>
+          </a>
+          <button onclick="printSummaryReport()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+            <span>Print Report</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN BODY CONTENT -->
+    <main class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 space-y-6">
+
+      <!-- ================= TAB 1: SALES & ANALYTICS ================= -->
+      <section id="section-analytics" class="space-y-6">
+        
+        <!-- Time Filter Selector -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white rounded-2xl border border-slate-200 p-4 shadow-xs">
+          <div>
+            <h3 class="font-black font-heading text-lg text-slate-900">Executive Performance Summary</h3>
+            <p class="text-xs text-slate-500 font-medium">Real-time revenue, order counts, and category statistics</p>
+          </div>
+
+          <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
+            <button onclick="setAnalyticsRange('today')" id="range-today" class="px-3 py-1.5 rounded-lg bg-brand-600 text-white shadow-xs">Today</button>
+            <button onclick="setAnalyticsRange('week')" id="range-week" class="px-3 py-1.5 rounded-lg hover:bg-slate-200 text-slate-700">Last 7 Days</button>
+            <button onclick="setAnalyticsRange('month')" id="range-month" class="px-3 py-1.5 rounded-lg hover:bg-slate-200 text-slate-700">This Month</button>
+            <button onclick="setAnalyticsRange('all')" id="range-all" class="px-3 py-1.5 rounded-lg hover:bg-slate-200 text-slate-700">All Time</button>
+          </div>
+        </div>
+
+        <!-- 4 KPI Stats Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Card 1: Net Revenue -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex items-center justify-between">
+            <div>
+              <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Net Revenue</div>
+              <div class="text-2xl sm:text-3xl font-black font-heading text-emerald-600 mt-1" id="kpiNetRevenue">RM 0.00</div>
+              <div class="text-[11px] text-slate-500 mt-1 font-medium">Cash Collected at Counter</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center">
+              <i data-lucide="dollar-sign" class="w-6 h-6"></i>
+            </div>
+          </div>
+
+          <!-- Card 2: Total Orders -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex items-center justify-between">
+            <div>
+              <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Paid Orders</div>
+              <div class="text-2xl sm:text-3xl font-black font-heading text-slate-900 mt-1" id="kpiPaidOrders">0</div>
+              <div class="text-[11px] text-slate-500 mt-1 font-medium"><span id="kpiTotalOrders">0</span> total registered</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center">
+              <i data-lucide="receipt" class="w-6 h-6"></i>
+            </div>
+          </div>
+
+          <!-- Card 3: Discounts Given -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex items-center justify-between">
+            <div>
+              <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Discounts Given</div>
+              <div class="text-2xl sm:text-3xl font-black font-heading text-brand-600 mt-1" id="kpiDiscounts">RM 0.00</div>
+              <div class="text-[11px] text-slate-500 mt-1 font-medium">Special Promotions & Savings</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-brand-600 border border-amber-200 flex items-center justify-center">
+              <i data-lucide="tag" class="w-6 h-6"></i>
+            </div>
+          </div>
+
+          <!-- Card 4: Average Order Value -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex items-center justify-between">
+            <div>
+              <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Average Bill Value</div>
+              <div class="text-2xl sm:text-3xl font-black font-heading text-purple-600 mt-1" id="kpiAvgBill">RM 0.00</div>
+              <div class="text-[11px] text-slate-500 mt-1 font-medium">Per Dining Table</div>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 border border-purple-200 flex items-center justify-center">
+              <i data-lucide="trending-up" class="w-6 h-6"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2 Columns: Category Breakdown & Top Selling Items -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          <!-- Category Sales Breakdown -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+            <h4 class="font-bold font-heading text-slate-900 text-base mb-1 flex items-center gap-2">
+              <i data-lucide="pie-chart" class="w-4 h-4 text-brand-600"></i>
+              <span>Sales Volume by Category</span>
+            </h4>
+            <p class="text-xs text-slate-500 mb-4">Total quantities ordered per department</p>
+
+            <div id="categoryBreakdownContainer" class="space-y-3">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Top Selling Items Leaderboard -->
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs">
+            <h4 class="font-bold font-heading text-slate-900 text-base mb-1 flex items-center gap-2">
+              <i data-lucide="trophy" class="w-4 h-4 text-amber-500"></i>
+              <span>Top Selling Dishes & Combos</span>
+            </h4>
+            <p class="text-xs text-slate-500 mb-4">Best sellers ranked by volume & revenue</p>
+
+            <div id="topSellingContainer" class="space-y-2.5">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 2: ORDERS HISTORY LEDGER ================= -->
+      <section id="section-orders" class="hidden space-y-4">
+        
+        <!-- Search & Filter Controls -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div class="flex-1 relative">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+            <input 
+              type="text" 
+              id="orderLedgerSearchInput" 
+              oninput="filterOrderLedger()" 
+              placeholder="Search by Order ID (e.g. KLP-31758) or items..." 
+              class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-brand-500"
+            >
+          </div>
+
+          <div class="flex items-center gap-2">
+            <!-- Table Filter -->
+            <select id="ledgerTableFilter" onchange="filterOrderLedger()" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none">
+              <option value="all">All Tables (1-6)</option>
+              <option value="1">Table 1</option>
+              <option value="2">Table 2</option>
+              <option value="3">Table 3</option>
+              <option value="4">Table 4</option>
+              <option value="5">Table 5</option>
+              <option value="6">Table 6</option>
+            </select>
+
+            <!-- Status Filter -->
+            <select id="ledgerStatusFilter" onchange="filterOrderLedger()" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 focus:outline-none">
+              <option value="all">All Payment Status</option>
+              <option value="paid">Paid Only</option>
+              <option value="unpaid">Unpaid / Active Only</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
+                <tr>
+                  <th class="py-3 px-4">Order ID</th>
+                  <th class="py-3 px-4">Date & Time</th>
+                  <th class="py-3 px-4">Table</th>
+                  <th class="py-3 px-4">Items Summary</th>
+                  <th class="py-3 px-4">Subtotal</th>
+                  <th class="py-3 px-4">Discount</th>
+                  <th class="py-3 px-4">Net Total</th>
+                  <th class="py-3 px-4">Payment</th>
+                  <th class="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="ordersLedgerTableBody" class="divide-y divide-slate-100 font-medium text-slate-800">
+                <!-- Rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+          <div id="ledgerEmptyState" class="hidden text-center py-12 text-slate-400 text-xs">
+            No matching order records found.
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 3: MENU & STOCK MANAGEMENT (CRUD) ================= -->
+      <section id="section-menu" class="hidden space-y-4">
+        
+        <!-- Menu Controls & Add Button -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 class="font-black font-heading text-lg text-slate-900">Menu & Stock Management</h3>
+            <p class="text-xs text-slate-500">Edit dish prices, add new items, or mark items In-Stock / Out-of-Stock</p>
+          </div>
+
+          <button onclick="openAddItemModal()" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-md shadow-brand-500/20 transition active:scale-95">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>Add New Food Item</span>
+          </button>
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1" id="menuAdminCatPills">
+          <!-- Rendered by JS: All, Deals, Burgers, Pizzas, Pastas, Wraps, Drinks -->
+        </div>
+
+        <!-- Menu Items List -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="adminMenuGrid">
+          <!-- Rendered by JS -->
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 4: MASTER SECURITY & PASSWORDS ================= -->
+      <section id="section-security" class="hidden space-y-6">
+        
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs max-w-2xl mx-auto space-y-6">
+          <div>
+            <h3 class="font-black font-heading text-xl text-slate-900 flex items-center gap-2">
+              <i data-lucide="shield-check" class="w-5 h-5 text-brand-600"></i>
+              <span>Restaurant Credentials & Access Control</span>
+            </h3>
+            <p class="text-xs text-slate-500 mt-1">Manage kitchen PIN, cashier access, and master admin password</p>
+          </div>
+
+          <!-- Section 1: Kitchen Display Access -->
+          <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4.5 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="chef-hat" class="w-5 h-5 text-brand-600"></i>
+                <span class="font-bold text-sm text-slate-900">Kitchen Display PIN</span>
+              </div>
+              <button onclick="resetKitchenPinAdmin()" class="text-xs text-brand-600 hover:underline font-bold">
+                Reset to Default (7288)
+              </button>
+            </div>
+            <p class="text-xs text-slate-500">The 4-digit code kitchen staff enters to open the screen.</p>
+          </div>
+
+          <!-- Section 2: Cashier Access -->
+          <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4.5 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="calculator" class="w-5 h-5 text-brand-600"></i>
+                <span class="font-bold text-sm text-slate-900">Cashier POS Login</span>
+              </div>
+              <button onclick="resetCashierPasswordAdmin()" class="text-xs text-brand-600 hover:underline font-bold">
+                Reset to Default (cashier / 7288)
+              </button>
+            </div>
+            <p class="text-xs text-slate-500">Default username: <strong>cashier</strong>, Password: <strong>7288</strong>.</p>
+          </div>
+
+          <!-- Section 3: Master Admin Password -->
+          <div class="border border-purple-200 bg-purple-50/50 rounded-2xl p-4.5 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="crown" class="w-5 h-5 text-purple-600"></i>
+                <span class="font-bold text-sm text-purple-950">Master Admin Credentials</span>
+              </div>
+              <button onclick="resetAdminPasswordAdmin()" class="text-xs text-purple-700 hover:underline font-bold">
+                Reset to Default (admin / 7288)
+              </button>
+            </div>
+            
+            <div class="pt-2 flex gap-2">
+              <input 
+                type="password" 
+                id="newAdminPassInput" 
+                placeholder="New Admin Password (min 4 chars)" 
+                class="flex-1 px-3 py-2 bg-white border border-purple-200 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:border-purple-500"
+              >
+              <button onclick="updateAdminPassword()" class="px-4 py-2 bg-purple-700 hover:bg-purple-600 text-white font-bold text-xs rounded-xl transition">
+                Change Admin Password
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- MODAL: ADD / EDIT MENU ITEM -->
+  <div id="itemModalBackdrop" onclick="closeItemModal()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <h4 class="font-bold font-heading text-lg text-slate-900" id="itemModalTitle">Add New Food Item</h4>
+        <button onclick="closeItemModal()" class="text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="handleSaveItem(event)" class="space-y-3.5 text-xs">
+        <input type="hidden" id="editItemId" value="">
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Item Name:</label>
+          <input 
+            type="text" 
+            id="modalItemName" 
+            placeholder="e.g. Deluxe Crispy Chicken Burger" 
+            required
+            class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-brand-500"
+          >
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Category:</label>
+            <select id="modalItemCategory" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none">
+              <option value="Burgers">Burgers</option>
+              <option value="Pizzas">Pizzas</option>
+              <option value="Pastas">Pastas</option>
+              <option value="Wraps">Wraps</option>
+              <option value="Deals">Deals</option>
+              <option value="Drinks">Drinks</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Price (RM):</label>
+            <input 
+              type="number" 
+              id="modalItemPrice" 
+              step="0.1" 
+              min="0" 
+              placeholder="15.00" 
+              required
+              class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-900 focus:outline-none focus:border-brand-500"
+            >
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Description:</label>
+          <textarea 
+            id="modalItemDescription" 
+            rows="2" 
+            placeholder="Ingredients and delicious details..." 
+            class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-brand-500 resize-none"
+          ></textarea>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">Image:</label>
+          <select id="modalItemImage" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none">
+            <option value="images/burger.jpg">Burger Picture</option>
+            <option value="images/pizza.jpg">Pizza Picture</option>
+            <option value="images/pasta.jpg">Pasta Picture</option>
+            <option value="images/wrap.jpg">Wrap Picture</option>
+            <option value="images/drink.jpg">Drink Picture</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-2 pt-1">
+          <input type="checkbox" id="modalItemPopular" class="rounded text-brand-600 focus:ring-brand-500">
+          <label for="modalItemPopular" class="text-xs font-bold text-slate-700">Mark as Chef's Choice / Popular</label>
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 flex gap-2">
+          <button type="submit" class="flex-1 bg-brand-600 hover:bg-brand-500 text-white font-bold py-2.5 rounded-xl transition">
+            Save Item
+          </button>
+          <button type="button" onclick="closeItemModal()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition">
+            Cancel
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ORDER DETAIL MODAL -->
+  <div id="orderDetailModal" onclick="closeOrderDetailModal()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <h4 class="font-bold font-heading text-base text-slate-900" id="detailOrderTitle">Order Details</h4>
+        <button onclick="closeOrderDetailModal()" class="text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="orderDetailBody" class="text-xs space-y-2">
+        <!-- Injected by JS -->
+      </div>
+      <div class="mt-4 pt-3 border-t border-slate-100">
+        <button onclick="closeOrderDetailModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2 rounded-xl text-xs transition">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINT SALES REPORT AREA (HIDDEN EXCEPT WHEN PRINTING) -->
+  <div id="printReportArea" class="hidden p-8 font-sans">
+    <div class="border-b-2 border-black pb-4 mb-6 text-center">
+      <h1 class="text-2xl font-black tracking-wider uppercase">KUALA LUMPUR PORT</h1>
+      <p class="text-xs">Fresh, Fast & Flavourful Dining • Contact: 03287205940</p>
+      <h2 class="text-base font-bold mt-2">Executive Sales & Performance Report</h2>
+      <p class="text-xs text-slate-600" id="printReportDate">Generated: Date & Time</p>
+    </div>
+
+    <div class="grid grid-cols-4 gap-4 mb-6 border border-slate-300 p-4 rounded text-center">
+      <div>
+        <div class="text-xs text-slate-500 uppercase">Net Revenue</div>
+        <div class="text-xl font-black" id="printNetRevenue">RM 0.00</div>
+      </div>
+      <div>
+        <div class="text-xs text-slate-500 uppercase">Paid Orders</div>
+        <div class="text-xl font-black" id="printPaidOrders">0</div>
+      </div>
+      <div>
+        <div class="text-xs text-slate-500 uppercase">Discounts Given</div>
+        <div class="text-xl font-black" id="printDiscounts">RM 0.00</div>
+      </div>
+      <div>
+        <div class="text-xs text-slate-500 uppercase">Avg Bill Value</div>
+        <div class="text-xl font-black" id="printAvgBill">RM 0.00</div>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <h3 class="font-bold text-sm mb-2 border-b border-black pb-1">Top Selling Menu Items</h3>
+      <div id="printTopSellingTable"></div>
+    </div>
+
+    <div class="mt-8 text-center text-xs text-slate-500 border-t pt-4">
+      End of Report • Kuala Lumpur Port Restaurant System
+    </div>
+  </div>
+
+  <!-- ADMIN LOGIN MODAL -->
+  <div id="adminLoginModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-2xl">
+      
+      <div class="w-14 h-14 rounded-2xl bg-purple-500/10 text-purple-600 border border-purple-500/20 flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="crown" class="w-7 h-7"></i>
+      </div>
+
+      <h3 class="text-2xl font-black font-heading text-slate-900 text-center">Owner Admin Access</h3>
+      <p class="text-xs text-slate-500 text-center mt-1 mb-6">Enter master credentials to view restaurant analytics</p>
+
+      <div id="adminLoginError" class="hidden text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-xl py-2 px-3 mb-4 text-center">
+        Invalid Admin Credentials.
+      </div>
+
+      <form onsubmit="handleAdminLoginSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Master Username:</label>
+          <input 
+            type="text" 
+            id="adminLoginUser" 
+            placeholder="admin" 
+            required
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 font-medium focus:outline-none focus:border-brand-500 focus:bg-white"
+          >
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Master Password:</label>
+          <input 
+            type="password" 
+            id="adminLoginPass" 
+            placeholder="••••" 
+            required
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 font-mono focus:outline-none focus:border-brand-500 focus:bg-white"
+          >
+        </div>
+
+        <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-xl text-sm shadow-md transition active:scale-95">
+          Enter Admin Portal
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- APPLICATION SCRIPTS -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

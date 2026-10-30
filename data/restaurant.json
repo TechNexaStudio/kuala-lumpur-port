@@ -1,0 +1,18 @@
+{
+  "name": "Kuala Lumpur Port",
+  "tagline": "Fresh, Fast & Flavourful Dining",
+  "phone": "03287205940",
+  "contactText": "For more information contact 03287205940",
+  "currency": "RM",
+  "totalTables": 6,
+  "tables": [1, 2, 3, 4, 5, 6],
+  "categories": [
+    "All Menu",
+    "Deals",
+    "Burgers",
+    "Pizzas",
+    "Pastas",
+    "Wraps",
+    "Drinks"
+  ]
+}

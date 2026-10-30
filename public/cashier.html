@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cashier Counter & POS Billing - Kuala Lumpur Port</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              500: '#f97316',
+              600: '#ea580c',
+              700: '#c2410c',
+            }
+          },
+          fontFamily: {
+            heading: ['Outfit', 'sans-serif'],
+            body: ['Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Dedicated 80mm Thermal Receipt Styling */
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #thermalReceiptPrintArea, #thermalReceiptPrintArea * {
+        visibility: visible !important;
+      }
+      #thermalReceiptPrintArea {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 80mm !important;
+        padding: 4mm !important;
+        background: white !important;
+        color: black !important;
+        font-family: 'Courier New', Courier, monospace !important;
+        display: block !important;
+      }
+      @page {
+        size: 80mm auto;
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+<body class="bg-[#faf8f5] text-slate-800 font-body min-h-screen antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- CASHIER APP CONTAINER -->
+  <div id="cashierApp" class="flex flex-col min-h-screen">
+    
+    <!-- HEADER -->
+    <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 sticky top-0 z-30 shadow-xs">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        
+        <!-- Left: Brand & Station Name -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-amber-500 text-white flex items-center justify-center shadow-md shadow-brand-500/20">
+            <i data-lucide="calculator" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-lg sm:text-xl font-black font-heading tracking-tight text-slate-900">
+                CASHIER COUNTER (POS)
+              </h1>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-brand-800 border border-amber-200">
+                <i data-lucide="banknote" class="w-3.5 h-3.5"></i>
+                Cash Counter
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 font-medium">Kuala Lumpur Port • 80mm Thermal Receipt & Billing</p>
+          </div>
+        </div>
+
+        <!-- Center: Quick Daily Cash Stats -->
+        <div class="hidden md:flex items-center gap-3 text-xs font-bold">
+          <div class="bg-emerald-50 border border-emerald-200 px-3.5 py-1.5 rounded-xl text-emerald-900 flex items-center gap-2">
+            <span>Today's Cash Collected:</span>
+            <span id="headerTotalCash" class="font-black text-sm text-emerald-700">RM 0.00</span>
+          </div>
+          <div class="bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl text-slate-700 flex items-center gap-2">
+            <span>Bills Paid:</span>
+            <span id="headerPaidCount" class="bg-slate-800 text-white px-2 py-0.5 rounded-lg text-xs">0</span>
+          </div>
+        </div>
+
+        <!-- Right: Navigation Quick Links, Cashier Info & Settings -->
+        <div class="flex items-center gap-2">
+          <a href="/?table=1" class="hidden sm:flex items-center gap-1 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition border border-slate-200">
+            <i data-lucide="utensils" class="w-3.5 h-3.5 text-brand-600"></i>
+            <span>Customer Menu</span>
+          </a>
+          <a href="/kitchen" class="hidden sm:flex items-center gap-1 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition border border-slate-200">
+            <i data-lucide="chef-hat" class="w-3.5 h-3.5 text-brand-600"></i>
+            <span>Kitchen</span>
+          </a>
+
+          <div class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl text-xs font-bold text-slate-800">
+            <i data-lucide="user-check" class="w-4 h-4 text-brand-600"></i>
+            <span id="cashierUserNameBadge">cashier</span>
+          </div>
+
+          <!-- Settings & Reset Password Modal -->
+          <button onclick="openSettingsModal()" title="Cashier Settings & Password Reset" class="p-2 sm:px-3 sm:py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-200 transition">
+            <i data-lucide="settings" class="w-4 h-4 text-slate-600"></i>
+            <span class="hidden sm:inline">Settings</span>
+          </button>
+
+          <!-- Logout Button -->
+          <button onclick="logoutCashier()" title="Logout" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition">
+            <i data-lucide="log-out" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- MAIN CASHIER WORKSPACE (TABLES & BILLING SPLIT) -->
+    <main class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- LEFT 7 COLS: 6 TABLES FLOOR MAP & ACTIVE ORDERS -->
+      <section class="lg:col-span-7 flex flex-col gap-5">
+        
+        <!-- Floor Header -->
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-black font-heading text-slate-900 flex items-center gap-2">
+              <i data-lucide="layout-grid" class="w-5 h-5 text-brand-600"></i>
+              <span>Restaurant Tables (Total 6 Tables)</span>
+            </h2>
+            <p class="text-xs text-slate-500 font-medium">Click on any occupied table to generate and settle the bill</p>
+          </div>
+          <button onclick="refreshTablesData()" class="p-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 text-xs font-semibold flex items-center gap-1 shadow-xs transition">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>Refresh</span>
+          </button>
+        </div>
+
+        <!-- 6 Tables Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3.5" id="tablesMapGrid">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Live Orders List (Unpaid & In Progress) -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex-1">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+            <h3 class="font-bold font-heading text-slate-900 text-sm flex items-center gap-2">
+              <i data-lucide="clock" class="w-4 h-4 text-brand-600"></i>
+              <span>Active Unpaid Orders Queue</span>
+            </h3>
+            <span id="activeOrdersBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-brand-800 border border-amber-200">0 Active</span>
+          </div>
+
+          <div id="unpaidOrdersList" class="space-y-3 overflow-y-auto max-h-[380px] pr-1">
+            <!-- Rendered by JS -->
+          </div>
+
+          <div id="noUnpaidOrdersState" class="hidden text-center py-12">
+            <div class="w-12 h-12 mx-auto mb-2 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200">
+              <i data-lucide="check" class="w-6 h-6"></i>
+            </div>
+            <p class="text-xs font-bold text-slate-700">All tables are clear & bills paid!</p>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT 5 COLS: ACTIVE BILL CHECKOUT & CASH CALCULATOR -->
+      <section class="lg:col-span-5">
+        <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-sm sticky top-24 flex flex-col justify-between" id="billingCheckoutPanel">
+          
+          <!-- When No Table is Selected -->
+          <div id="noTableSelectedState" class="text-center py-16">
+            <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-amber-50 text-brand-500 border border-amber-200 flex items-center justify-center">
+              <i data-lucide="receipt" class="w-8 h-8"></i>
+            </div>
+            <h4 class="text-base font-bold text-slate-800">Select a Table to Bill</h4>
+            <p class="text-xs text-slate-500 max-w-xs mx-auto mt-1">
+              Click on an occupied table or order on the left to calculate cash, apply discounts, and print an 80mm thermal receipt.
+            </p>
+          </div>
+
+          <!-- Active Bill Content (Hidden until table selected) -->
+          <div id="activeBillContent" class="hidden space-y-4">
+            
+            <!-- Bill Header -->
+            <div class="pb-3 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span id="billTablePill" class="px-2.5 py-1 rounded-xl bg-slate-900 text-white font-heading font-black text-sm">Table #1</span>
+                  <span id="billOrderId" class="text-xs font-mono font-bold text-slate-500">#KLP-00000</span>
+                </div>
+                <div class="text-[11px] text-slate-400 font-medium mt-0.5" id="billOrderTime">Time: --:--</div>
+              </div>
+
+              <!-- Quick Print Preview Button -->
+              <button onclick="previewThermalReceipt()" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1 border border-slate-200 transition">
+                <i data-lucide="eye" class="w-4 h-4 text-brand-600"></i>
+                <span>Preview Slip</span>
+              </button>
+            </div>
+
+            <!-- Items Ordered List -->
+            <div class="space-y-2 max-h-52 overflow-y-auto pr-1 divide-y divide-slate-100 text-xs" id="billItemsContainer">
+              <!-- Rendered by JS -->
+            </div>
+
+            <!-- DISCOUNT SECTION (Requested by User) -->
+            <div class="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-3.5 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-amber-950 flex items-center gap-1.5">
+                  <i data-lucide="tag" class="w-3.5 h-3.5 text-brand-600"></i>
+                  <span>Special Product / Bill Discount:</span>
+                </span>
+                <span id="discountBadgeText" class="text-[11px] font-black text-brand-700 bg-white px-2 py-0.5 rounded-md border border-amber-200">No Discount</span>
+              </div>
+
+              <!-- Preset Discount Buttons -->
+              <div class="grid grid-cols-4 gap-1.5 text-xs font-bold">
+                <button onclick="applyDiscount(0)" id="disc-btn-0" class="py-1.5 rounded-lg border bg-brand-600 text-white border-brand-600 shadow-xs">0%</button>
+                <button onclick="applyDiscount(5)" id="disc-btn-5" class="py-1.5 rounded-lg border bg-white hover:bg-amber-100 text-slate-700 border-amber-200">5% OFF</button>
+                <button onclick="applyDiscount(10)" id="disc-btn-10" class="py-1.5 rounded-lg border bg-white hover:bg-amber-100 text-slate-700 border-amber-200">10% OFF</button>
+                <button onclick="applyDiscount(20)" id="disc-btn-20" class="py-1.5 rounded-lg border bg-white hover:bg-amber-100 text-slate-700 border-amber-200">20% OFF</button>
+              </div>
+
+              <!-- Custom Discount Input -->
+              <div class="flex gap-2 pt-1">
+                <input 
+                  type="number" 
+                  id="customDiscountInput" 
+                  placeholder="Custom RM off (e.g. 5.00)" 
+                  step="0.5" 
+                  min="0"
+                  class="flex-1 px-3 py-1.5 bg-white border border-amber-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-brand-500 font-medium"
+                >
+                <button onclick="applyCustomDiscount()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded-xl transition">
+                  Apply
+                </button>
+              </div>
+            </div>
+
+            <!-- BILL SUMMARY -->
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-1.5 text-xs">
+              <div class="flex justify-between text-slate-600 font-medium">
+                <span>Gross Subtotal:</span>
+                <span id="billGrossSubtotal" class="font-bold text-slate-800">RM 0.00</span>
+              </div>
+              <div class="flex justify-between text-brand-700 font-medium">
+                <span>Discount Applied:</span>
+                <span id="billDiscountAmount" class="font-bold">- RM 0.00</span>
+              </div>
+              <div class="flex justify-between text-slate-600 font-medium">
+                <span>Tax / SST:</span>
+                <span class="font-bold text-emerald-600">0% (Included in food price)</span>
+              </div>
+              <div class="border-t border-slate-200 pt-2 flex justify-between text-base font-black text-slate-900">
+                <span>Net Total Payable:</span>
+                <span id="billNetTotal" class="text-xl font-heading text-brand-600 font-black">RM 0.00</span>
+              </div>
+            </div>
+
+            <!-- CASH TENDERED & CHANGE CALCULATOR -->
+            <div class="border border-slate-200 rounded-2xl p-3.5 space-y-3 bg-white">
+              <label class="block text-xs font-bold text-slate-700">Cash Received from Customer (RM):</label>
+              
+              <!-- Quick Cash Buttons -->
+              <div class="grid grid-cols-4 gap-1.5 text-xs font-bold" id="quickCashButtonsContainer">
+                <!-- Injected by JS: Exact, RM 20, RM 50, RM 100 -->
+              </div>
+
+              <!-- Manual Cash Input -->
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-slate-500 text-sm">RM</span>
+                <input 
+                  type="number" 
+                  id="cashReceivedInput" 
+                  step="0.5" 
+                  min="0"
+                  oninput="handleCashInput(this.value)"
+                  placeholder="0.00" 
+                  class="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-base font-black font-mono text-slate-900 focus:outline-none focus:border-brand-500 focus:bg-white transition"
+                >
+              </div>
+
+              <!-- CHANGE RETURN BOX (Prominent visual feedback) -->
+              <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
+                <div>
+                  <div class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">Change Return:</div>
+                  <div class="text-xs text-emerald-600">Balance cash to give back</div>
+                </div>
+                <div class="text-2xl font-black font-heading text-emerald-700" id="changeReturnDisplay">
+                  RM 0.00
+                </div>
+              </div>
+            </div>
+
+            <!-- PAY & PRINT RECEIPT BUTTON -->
+            <button 
+              id="settleBillBtn" 
+              onclick="processCashPaymentAndPrint()" 
+              class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold py-4 px-4 rounded-2xl text-base shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition active:scale-[0.98]"
+            >
+              <i data-lucide="printer" class="w-5 h-5"></i>
+              <span>Settle Cash & Print 80mm Receipt</span>
+            </button>
+
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- 80MM THERMAL RECEIPT MODAL / PREVIEW -->
+  <div id="receiptModalBackdrop" onclick="closeReceiptModal()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div onclick="event.stopPropagation()" class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 shadow-2xl flex flex-col max-h-[90vh]">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <h4 class="font-bold font-heading text-sm text-slate-800 flex items-center gap-1.5">
+          <i data-lucide="receipt" class="w-4 h-4 text-brand-600"></i>
+          <span>80mm Thermal Receipt Preview</span>
+        </h4>
+        <button onclick="closeReceiptModal()" class="text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Scrollable Receipt Slip Preview -->
+      <div class="flex-1 overflow-y-auto bg-slate-50 p-3 rounded-2xl border border-slate-200 flex justify-center">
+        
+        <!-- The Actual 80mm Paper Container for Preview & Print -->
+        <div id="thermalReceiptPrintArea" class="w-full bg-white text-black p-4 text-[12px] font-mono leading-relaxed border border-dashed border-slate-300 rounded shadow-xs">
+          <!-- Injected dynamically by JS -->
+        </div>
+
+      </div>
+
+      <!-- Print Action Button -->
+      <div class="pt-4 mt-3 border-t border-slate-100 flex items-center gap-2">
+        <button onclick="triggerThermalPrint()" class="flex-1 bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md shadow-brand-500/20 transition">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+          <span>Print Receipt Now (80mm)</span>
+        </button>
+        <button onclick="closeReceiptModal()" class="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition">
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CASHIER LOGIN MODAL -->
+  <div id="loginModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-2xl">
+      
+      <div class="w-14 h-14 rounded-2xl bg-brand-500/10 text-brand-600 border border-brand-500/20 flex items-center justify-center mx-auto mb-4">
+        <i data-lucide="shield-check" class="w-7 h-7"></i>
+      </div>
+
+      <h3 class="text-2xl font-black font-heading text-slate-900 text-center">Cashier Login</h3>
+      <p class="text-xs text-slate-500 text-center mt-1 mb-6">Enter cashier credentials to access POS billing</p>
+
+      <!-- Error message -->
+      <div id="loginError" class="hidden text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-xl py-2 px-3 mb-4 text-center">
+        Invalid Username or Password.
+      </div>
+
+      <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Username:</label>
+          <input 
+            type="text" 
+            id="loginUsername" 
+            placeholder="cashier"
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 font-medium focus:outline-none focus:border-brand-500 focus:bg-white"
+            required
+          >
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Password:</label>
+          <input 
+            type="password" 
+            id="loginPassword" 
+            placeholder="••••"
+            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 font-mono focus:outline-none focus:border-brand-500 focus:bg-white"
+            required
+          >
+        </div>
+
+        <button type="submit" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 px-4 rounded-xl text-sm shadow-md shadow-brand-500/20 transition active:scale-95">
+          Login to POS
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- SETTINGS & PASSWORD RESET MODAL -->
+  <div id="settingsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 shadow-2xl">
+      
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center">
+            <i data-lucide="key-round" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h4 class="font-bold font-heading text-lg text-slate-900">Cashier Security & Settings</h4>
+            <p class="text-xs text-slate-500">Manage Password & Reset</p>
+          </div>
+        </div>
+        <button onclick="closeSettingsModal()" class="text-slate-400 hover:text-slate-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Reset to Original Password Option (Requested by User) -->
+      <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 mb-5">
+        <h5 class="font-bold text-xs text-amber-900 mb-1 flex items-center gap-1.5">
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5 text-brand-600"></i>
+          <span>Reset to Original Password</span>
+        </h5>
+        <p class="text-xs text-slate-600 leading-relaxed mb-3">
+          If you changed the cashier password and forgot it, clicking below restores the original factory default credentials.
+        </p>
+        <button onclick="resetCashierPasswordToDefault()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition shadow-xs flex items-center justify-center gap-2">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          <span>Reset to Original Password (7288)</span>
+        </button>
+      </div>
+
+      <!-- Change Cashier Password Option -->
+      <div class="border border-slate-200 rounded-2xl p-4 mb-5 space-y-2.5">
+        <h5 class="font-bold text-xs text-slate-800">Change Cashier Password</h5>
+        <input 
+          type="password" 
+          id="newCashierPassInput" 
+          placeholder="New Password (min 4 chars)" 
+          class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:border-brand-500"
+        >
+        <button onclick="submitNewCashierPassword()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-2 rounded-xl transition">
+          Update Password
+        </button>
+      </div>
+
+      <div class="flex justify-end">
+        <button onclick="closeSettingsModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition">
+          Close
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- APPLICATION SCRIPTS -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="cashier.js"></script>
+</body>
+</html>

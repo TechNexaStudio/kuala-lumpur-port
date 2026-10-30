@@ -1,0 +1,12 @@
+{
+  "kitchenPin": "7288",
+  "defaultKitchenPin": "7288",
+  "cashierUsername": "cashier",
+  "cashierPassword": "7288",
+  "defaultCashierUsername": "cashier",
+  "defaultCashierPassword": "7288",
+  "adminUsername": "admin",
+  "adminPassword": "7288",
+  "defaultAdminUsername": "admin",
+  "defaultAdminPassword": "7288"
+}

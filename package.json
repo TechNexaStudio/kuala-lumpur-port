@@ -1,0 +1,28 @@
+{
+  "name": "kuala-lumpur-port",
+  "version": "1.0.0",
+  "description": "Kuala Lumpur Port - Restaurant Management System & QR POS Billing",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "restaurant",
+    "pos",
+    "qr-menu",
+    "kitchen-display",
+    "cashier-billing"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "socket.io": "^4.8.4"
+  }
+}
